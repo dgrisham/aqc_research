@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 
 from cmath import sqrt, sin, cos, exp, pi
 import numpy as np

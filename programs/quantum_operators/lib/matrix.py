@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 # ==============================================================
 # Functions for matrix manipulations of quantum states/operators
 #
