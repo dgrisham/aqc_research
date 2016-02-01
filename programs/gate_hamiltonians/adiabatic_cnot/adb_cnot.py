@@ -19,23 +19,21 @@ def main():
 
     T = 1
     step = 0.0001
-    #gap = np.ndarray(shape=(T,))
-    #gap = []
-    #evals0 = []
-    #evals1 = []
-    print("initial X measurement: {}".format(measure_all(state, 2, 'X')))
+    gap = []
+    evals0 = []
+    evals1 = []
+    print("initial X measurement: {}".format(measure_all(state, 1, 'X')))
     print("initial Y measurement: {}".format(measure_all(state, 2, 'Y')))
     print("initial Z measurement: {}".format(measure_all(state, 2, 'Z')))
     for t in np.arange(0, T, step):
         state = mx.propagate(Htot(t/T, Hi, Hf, Hif), t, state)
-        print("X measurement: {}".format(measure_all(state, 2, 'X')))
-        print("Y measurement: {}".format(measure_all(state, 2, 'Y')))
-        print("Z measurement: {}".format(measure_all(state, 2, 'Z')))
-        #evals = np.sort(np.linalg.eigvals(Htot(t/T, Hi, Hf, Hif)))
-        # np.append(gap, evals[1] - evals[0])
-        #evals0 += [evals[0]]
-        #evals1 += [evals[1]]
-        #gap += [evals[1] - evals[0]]
+        #print("X measurement: {}".format(measure_all(state, 2, 'X')))
+        #print("Y measurement: {}".format(measure_all(state, 2, 'Y')))
+        #print("Z measurement: {}".format(measure_all(state, 2, 'Z')))
+        evals = np.sort(np.linalg.eigvals(Htot(t/T, Hi, Hf, Hif)))
+        evals0 += [evals[0]]
+        evals1 += [evals[1]]
+        gap += [evals[1] - evals[0]]
 
     print("final X measurement: {}".format(measure_all(state, 2, 'X')))
     print("final Y measurement: {}".format(measure_all(state, 2, 'Y')))
@@ -43,11 +41,11 @@ def main():
     #gap = np.asarray(gap, dtype=float)
 
     #fig = plt.figure()
-    #plt.ylim(0, 1)
-    #plt.plot(np.arange(0, T, step), evals0, color='blue')
-    #plt.plot(np.arange(0, T, step), evals1, color='purple')
-    #plt.plot(np.arange(0, T, step), gap, color='red')
-    #plt.show()
+    plt.ylim(0, 1)
+    plt.plot(np.arange(0, T, step), evals0, color='blue')
+    plt.plot(np.arange(0, T, step), evals1, color='purple')
+    plt.plot(np.arange(0, T, step), gap, color='red')
+    plt.show()
 
 ###################################################################
 ## measure the spin along the z-axis for all qubits in the state ##
