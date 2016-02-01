@@ -4,6 +4,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+try:
+    import seaborn as sns
+    sns.set_style("whitegrid")
+except ImportError:
+    pass
+
 
 def main():
     # define each piece of the total Hamiltonian
@@ -48,3 +54,4 @@ def Htot(s, Hi, Hf, Hif):
 
 if __name__ == '__main__':
     main()
+
