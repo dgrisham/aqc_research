@@ -3,11 +3,6 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
-import qops.matrix as mx
-import qops.states as st
-
-sns.set_style("whitegrid")
 
 
 def main():
