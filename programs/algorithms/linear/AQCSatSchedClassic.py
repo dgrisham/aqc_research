@@ -18,6 +18,8 @@ lastIndex = len(x)-1
 
 # model inputs
 
+# duration
+
 d = [1,2,1,1,1]
 
 # slew time in accordance with index ordering
