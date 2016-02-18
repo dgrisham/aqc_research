@@ -1,17 +1,15 @@
+#!/usr/bin/env python2
 # author: mberntso  last update: 1/23/15  
 
 from operator import sub
 
 # initialize all tasks as scheduled
 
-# numTasks = 5
-
+## numTasks = 5
 x = [1,1,1,1,1]
 
-# global indeces for first and last scheduled tasks
-
+## global indeces for first and last scheduled tasks
 firstIndex = 0
-
 lastIndex = len(x)-1
 
 # initialize start times and precedence matrix later
@@ -22,12 +20,10 @@ lastIndex = len(x)-1
 
 d = [1,2,1,1,1]
 
-# slew time in accordance with index ordering
-
+## slew time in accordance with index ordering
 s = [[0 for z in range(5)] for z in range(5)]
 
-# s[i][j] = time from i to j
-
+### s[i][j] = time from i to j
 s[0][1] = 1
 s[0][2] = 1
 s[0][3] = 1
@@ -38,22 +34,21 @@ s[1][4] = 1
 s[2][3] = 1
 s[2][4] = 1
 s[3][4] = 1
+#for i in range(len(s)-1):
+#    for j in range(i+1, len(s)):
+#        s[i][j] = 1
 
 # window begin and end times
-
 wB = [0,1,2,3,4]
 wE = [2,3,4,5,6]
 
 # priorities
-
 p = [1,2,2,2,2]
 
 # very large value (not used currently)
-
 M = 999
 
 # build y (precedence) matrix (not used currently, b/c ordering is assumed)
-
 def precedenceMatrix(x):
     numTasks = len(x)
 
@@ -63,30 +58,21 @@ def precedenceMatrix(x):
 
     # todo: for loops, when data from I/O
 
-    y[0][1] = 1
-    y[0][2] = 1
-    y[0][3] = 1
-    y[0][4] = 1
-    y[1][2] = 1
-    y[1][3] = 1
-    y[1][4] = 1
-    y[2][3] = 1
-    y[2][4] = 1
-    y[3][4] = 1 
+    for i in range(len(y)-1):
+        for j in range(i+1, len(y)):
+            y[i][j] = 1
 
     return y
 
 # build bounds for starting time b
-
 bMin = wB
 bMax = map(sub, wE, d)
 
 # findNext/Prev scheduled task (index)
-
 def findNext(x, index, last):
     if index >= last:
        return last
-    if x[index+1] == 1:
+    elif x[index+1] == 1:
         return index+1
     else:
         return findNext(x, index+1, last)
@@ -94,13 +80,12 @@ def findNext(x, index, last):
 def findPrev(x, index, first):
     if index <= first:
         return first
-    if x[index-1] == 1:
+    elif x[index-1] == 1:
         return index-1
     else:
         return findPrev(x, index-1, first)
 
 # remove task at (index) and update bounds on indeces
-
 def removeTask(x, index, first, last, currentV):
     x[index] = 0
     currentV = currentV - p[index]
@@ -111,12 +96,10 @@ def removeTask(x, index, first, last, currentV):
     return (x,first,last,currentV)
 
 # intialize the objective function V as if all tasks are scheduled
-
 currentV = sum(p)
 
 
 # recursively determine the optimal schedule
-
 #
 # Perhaps following an approach in line with the additive algorithm
 # would clean up the mess of conditionals in this function
@@ -125,8 +108,6 @@ currentV = sum(p)
 # The Geoffrion paper also includes some explanation of a nonlinear
 # objective function for binary free variables.  That seems like a plausible
 # extension to what is here.
-#
-
 def optimalValue(x, index, first, last, currentV, bMin, bMax):
     while index <= last: # O(n)
         next = findNext(x, index, last) # O(n)
@@ -140,18 +121,20 @@ def optimalValue(x, index, first, last, currentV, bMin, bMax):
             if bMin[index]+d[index]+s[index][next] > bMax[next]:
 
                 # removal and comparison
-
                 bMin_Z = list(bMin)
                 bMax_Z = list(bMax)
 
                 (x_A,first_A,last_A,currentV_A) = removeTask(list(x), index, first, last, currentV)
                 index_A = findPrev(x, index, first)
-                (x_B,first_B,last_B,currentV_B,bMin_B,bMax_B) = optimalValue(x_A, index_A, first_A, last_A, currentV_A, bMin_Z, bMax_Z) # recursive => O(n^2)
+                # recursive => O(n^2)
+                (x_B,first_B,last_B,currentV_B,bMin_B,bMax_B) =\
+                        optimalValue(x_A, index_A, first_A, last_A, currentV_A, bMin_Z, bMax_Z)
 
                 (x_C,first_C,last_C,currentV_C) = removeTask(list(x), next, first, last, currentV)
                 index_C = findNext(x, index, last)
-                (x_D,first_D,last_D,currentV_D,bMin_D,bMax_D) = optimalValue(x_C, index_C, first_C, last_C, currentV_C, bMin_Z, bMax_Z)
-                
+                (x_D,first_D,last_D,currentV_D,bMin_D,bMax_D) =\
+                        optimalValue(x_C, index_C, first_C, last_C, currentV_C, bMin_Z, bMax_Z)
+
                 if currentV_B >= currentV_D:
                     if currentV_B == currentV_D:
                         if p[index] >= p[next]:        
@@ -168,7 +151,6 @@ def optimalValue(x, index, first, last, currentV, bMin, bMax):
             else:
 
                 # adjust bounds if infeasible overlap
-
                 if bMin[index]+d[index]+s[index][next] <= bMin[next]:
                     if bMax[index]+d[index]+s[index][next] > bMin[next]:
                         if bMax[index]+d[index]+s[index][next] > bMax[next]:
@@ -193,9 +175,3 @@ print('Start time min bound: ')
 print(startMin)
 print('Start time max bound: ')
 print(startMax)
-
-
-
-
-
-    
