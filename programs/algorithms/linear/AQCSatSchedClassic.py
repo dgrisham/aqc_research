@@ -5,8 +5,8 @@ from operator import sub
 
 # initialize all tasks as scheduled
 
-## numTasks = 5
-x = [1,1,1,1,1]
+## numTasks = 10
+x = [1,1,1,1,1,1,1,1,1,1]
 
 ## global indeces for first and last scheduled tasks
 firstIndex = 0
@@ -18,32 +18,32 @@ lastIndex = len(x)-1
 
 # duration
 
-d = [1,2,1,1,1]
+d = [5,10,5,10,5,10,5,10,5,10]
 
 ## slew time in accordance with index ordering
-s = [[0 for z in range(5)] for z in range(5)]
+s = [[0 for z in range(len(x))] for z in range(len(x))]
 
 ### s[i][j] = time from i to j
-s[0][1] = 1
-s[0][2] = 1
-s[0][3] = 1
-s[0][4] = 1
-s[1][2] = 1
-s[1][3] = 1
-s[1][4] = 1
-s[2][3] = 1
-s[2][4] = 1
-s[3][4] = 1
-#for i in range(len(s)-1):
-#    for j in range(i+1, len(s)):
-#        s[i][j] = 1
+#s[0][1] = 1
+#s[0][2] = 1
+#s[0][3] = 1
+#s[0][4] = 1
+#s[1][2] = 1
+#s[1][3] = 1
+#s[1][4] = 1
+#s[2][3] = 1
+#s[2][4] = 1
+#s[3][4] = 1
+for i in range(len(s)-1):
+    for j in range(i+1, len(s)):
+        s[i][j] = 1
 
 # window begin and end times
-wB = [0,1,2,3,4]
-wE = [2,3,4,5,6]
+wB = [0,5,0,15,40,15,30,80,100,150]
+wE = [30,25,20,45,60,70,70,130,120,200]
 
 # priorities
-p = [1,2,2,2,2]
+p = [1,2,3,4,5,6,7,8,9,10]
 
 # very large value (not used currently)
 M = 999
