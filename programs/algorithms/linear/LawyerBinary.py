@@ -1,4 +1,12 @@
-# author: mberntso  last update: 1/23/15  
+# author: mberntso  last update: 3/7/15
+
+# this algorithm could be improved my modifying the Balas Additive algorithm
+# to function using dynamic programming methods, so as to not recalculate
+# alloc and incumbant values during the recursion
+
+# also, the input matrix could be read from file
+
+# BinaryProgramTesting provides a detailed walkthru of the logic
 
 class Cell:
     def __init__(self, assigned, lawyer, case, time):
@@ -34,10 +42,15 @@ def updateIncumbent(table, alloc):
 
     # calculate the updated allocation's obj func value
 
+    # format: alloc[lawyer] = case
+
     newValue = 0
 
     for i in range(len(alloc)):
-        newValue += table[i][alloc[i]].time
+        # for each lawyer in alloc array
+        # add the time, if this case has been assigned
+        if alloc[i] > -1:
+            newValue += table[i][alloc[i]].time
 
     return newValue
 
@@ -64,6 +77,7 @@ def optimalAlloc(table, sortList, index, prevAlloc, prevIncumbent):
     alloc = updateAlloc(table)
     incumbent = updateIncumbent(table, alloc)
 
+
     # <index> is the index of the binary variable in the sorted obj func
     
     # check constraints (one case per lawyer)
@@ -85,20 +99,28 @@ def optimalAlloc(table, sortList, index, prevAlloc, prevIncumbent):
 
     # list of number of cases per lawyer, indexed by lawyer
 
+    # check that no lawyers or cases have multiple mappings
+
     sumList = []
 
     for i in range(len(table)):
-        tempSum = 0
-        for j in range(len(table[0])):
-            tempSum += table[i][j].assigned
+        tempSumLaw = 0
+        tempSumCase = 0
 
-        if tempSum > 1:  # lawyer i assigned to an impossible number of cases
+        for j in range(len(table[0])):
+            # sum over row for a lawyer
+            tempSumLaw += table[i][j].assigned
+            # sum over a col for a case
+            tempSumCase += table[j][i].assigned
+
+        if tempSumLaw > 1 or tempSumCase > 1:  
+            # multiple assignments
             # exit recursion with the previous node's feasible allocation
             # (prune node)
-
+            # print("impossible")
             return (prevAlloc, prevIncumbent)
 
-        sumList.append(tempSum)
+        sumList.append(tempSumLaw)
 
     # Exit recursion if this is the last variable, so as to not recurse again
     if len(sortList)-1 == index:
@@ -134,8 +156,42 @@ def optimalAlloc(table, sortList, index, prevAlloc, prevIncumbent):
 
             # save the alloc with the better obj func value
             # in this lawyer problem, "better" is less time
-            if incumbentB < incumbentA:
+
+            # print("allocA: ")
+            # print(allocA)
+            # print("incumbentA: ")
+            # print(incumbentA)
+            # print("allocB: ")
+            # print(allocB)
+            # print("incumbentB: ")
+            # print(incumbentB)
+
+            # only save a satisfying condition
+            # this happens when all elements in alloc are more than 0
+            # in this implementation; not -1
+
+            if -1 in allocA:
+                # allocA is infeasible
+                if -1 in allocB:
+                    # allocB is infeeasible
+                    # both are infeasible, so return values before recursion
+                    # even though recursion node must be infeasible
+                    # an impossible incumbent value indicates
+                    # that there is no solution
+                    return (prevAlloc, prevIncumbent)
+                # else allocB is only feasible possibiliy
                 return (allocB, incumbentB)
+            # else allocA is feasible
+            if -1 in allocB:
+                # allocA only feasible option
+                return (allocA, incumbentA)
+
+            # else both are feasible, so must compare incumbent values
+
+            if incumbentB < incumbentA:
+                # allocB is better
+                return (allocB, incumbentB)
+            # else allocA is better, or the same
             return (allocA, incumbentA)
 
     # satisfied constraints
@@ -146,18 +202,19 @@ def optimalAlloc(table, sortList, index, prevAlloc, prevIncumbent):
 
 # table of time data for each case (col) by each lawyer (row) => data[row][col]
 
-timeData = [[1., 2., 3.],
-        [4., 5., 6.],
-        [7., 8., 9.]]
+timeData = [[1., 2.],
+        [3., 4.]]
+
+# timeData = [[1., 2., 3.],
+#         [4., 5., 6.],
+#         [7., 8., 9.]]
 
 
-
-
-#[[145., 122., 130., 95., 115.],
- #       [80., 63., 85., 48., 78.],
-  #      [121., 107., 93., 69., 95.],
-   #     [118., 83., 116., 80., 105.],
-    #    [97., 75., 120., 80., 111.]]
+# timeData = [[145., 122., 130., 95., 115.],
+#        [80., 63., 85., 48., 78.],
+#        [121., 107., 93., 69., 95.],
+#        [118., 83., 116., 80., 105.],
+#        [97., 75., 120., 80., 111.]]
 
 cellTable, timeList = organizeData(timeData)
 
@@ -168,9 +225,11 @@ startIndex = 0
 
 # initialize the previous return values
 
+# no cases allocated
 prevAlloc = updateAlloc(cellTable)
 
-prevIncumbent = updateIncumbent(cellTable, prevAlloc)
+# This is the maximum value an allocation could have given the sortedList
+prevIncumbent = timeList[-1].time * len(timeData)
 
 # run algorithm
 

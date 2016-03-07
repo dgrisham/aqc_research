@@ -1,5 +1,8 @@
 #!/usr/bin/env python2
-# author: mberntso  last update: 1/23/15  
+# author: mberntso  last update: 3/7/15  
+
+# this algorithm could be improbed by implementing a file format
+# for data input
 
 from operator import sub
 
