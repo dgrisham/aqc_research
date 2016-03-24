@@ -202,7 +202,7 @@ def optimalAlloc(table, sortList, index, prevAlloc, prevIncumbent):
 
 # table of time data for each case (col) by each lawyer (row) => data[row][col]
 
-timeData = [[1., 2.],
+timeData = [[1., 3.],
         [3., 4.]]
 
 # timeData = [[1., 2., 3.],
