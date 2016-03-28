@@ -14,10 +14,11 @@ lastIndex = len(x)-1
 
 # initialize start times and precedence matrix later
 
-## model inputs
-d = [1,2,1,1,1]
+# model inputs
+## durations
+d = [1,2,2,1,1]
 
-## slew time in accordance with index ordering
+## slew times in accordance with index ordering
 s = [[0 for z in range(5)] for z in range(5)]
 
 ### s[i][j] = time from i to j
@@ -118,19 +119,22 @@ def optimalValue(x, index, first, last, currentV, bMin, bMax):
             if bMin[index]+d[index]+s[index][next] > bMax[next]:
 
                 # removal and comparison
+
+                # create copies of bMin and bMax
                 bMin_Z = list(bMin)
                 bMax_Z = list(bMax)
 
                 (x_A,first_A,last_A,currentV_A) = removeTask(list(x), index, first, last, currentV)
                 index_A = findPrev(x, index, first)
-                # recursive => O(n^2)
+                # store result of removing current task as B
                 (x_B,first_B,last_B,currentV_B,bMin_B,bMax_B) =\
-                        optimalValue(x_A, index_A, first_A, last_A, currentV_A, bMin_Z, bMax_Z)
+                optimalValue(x_A, index_A, first_A, last_A, currentV_A, bMin_Z, bMax_Z) # recursive => O(n^2)
 
                 (x_C,first_C,last_C,currentV_C) = removeTask(list(x), next, first, last, currentV)
                 index_C = findNext(x, index, last)
+                # store result of removing next task as D
                 (x_D,first_D,last_D,currentV_D,bMin_D,bMax_D) =\
-                        optimalValue(x_C, index_C, first_C, last_C, currentV_C, bMin_Z, bMax_Z)
+                optimalValue(x_C, index_C, first_C, last_C, currentV_C, bMin_Z, bMax_Z)
 
                 if currentV_B >= currentV_D:
                     if currentV_B == currentV_D:
@@ -161,7 +165,6 @@ def optimalValue(x, index, first, last, currentV, bMin, bMax):
 
 
 # print the results
-
 (sched, blah, bleh, objFunc, startMin, startMax) = optimalValue(x, firstIndex, firstIndex, lastIndex, currentV, bMin, bMax)
 
 print('Scheduled Tasks: ')

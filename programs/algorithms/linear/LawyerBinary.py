@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 # author: mberntso  last update: 1/23/15  
 
 class Cell:
@@ -12,6 +13,11 @@ class Cell:
 def organizeData(data):
 
     table = [[Cell(0,i,j,data[i][j]) for j in range(len(data[0]))] for i in range(len(data))]
+    #for cellset in table:
+    #    for cell in cellset:
+    #        print("lawyer: {}".format(cell.lawyer))
+    #        print("case: {}".format(cell.case))
+    #        print("time: {}".format(cell.time))
 
     # data table and lists by lawyer created
 
@@ -152,4 +158,3 @@ print('Case number by lawyer index: ')
 print(allocation)
 print('Objective Function Value: ')
 print(value)
-
