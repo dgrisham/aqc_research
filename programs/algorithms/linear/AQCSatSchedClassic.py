@@ -27,7 +27,6 @@ d = [5,5,5,5,5,5]
 
 ## slew time in accordance with index ordering
 s = [[0 for z in range(len(x))] for z in range(len(x))]
->>>>>>> bba2007d16d28da3bc857fe4b8cde3b259531aa8
 
 ### s[i][j] = time from i to j
 s[0][1] = 3
@@ -67,7 +66,7 @@ def precedenceMatrix(x):
 
     # y[i][j] = 1 if i < j
 
-    # todo: for loops, when data from I/O
+    # todo: for loops, when data from user input
 
     for i in range(len(y)-1):
         for j in range(i+1, len(y)):
@@ -114,6 +113,7 @@ currentV = sum(p)
 #
 # Perhaps following an approach in line with the additive algorithm
 # would clean up the mess of conditionals in this function
+# Update (4/12/16): Additive Algorithm is just as complex and problem dependent
 #
 # See Figure 1 and 1a in the Geoffrion paper for a similar algorithm.
 # The Geoffrion paper also includes some explanation of a nonlinear
@@ -188,3 +188,9 @@ print('Start time min bound: ')
 print(startMin)
 print('Start time max bound: ')
 print(startMax)
+
+
+
+
+
+
