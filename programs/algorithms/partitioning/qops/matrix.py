@@ -194,8 +194,8 @@ def apply_big_mat(local_op_list, js, state):
 
 # take Hamiltonian and apply corresp. propagator to state
 # -------------------------------------------------------
-def propagate(H, t, state):
-    prop = expm(-1j * t * H)
+def propagate(H, dt, state):
+    prop = expm(-1j * dt * H)
     result = prop.dot(state)
 
     return result

@@ -31,9 +31,9 @@ def main():
     # total time to evolve over
     T = 10
     # time step
-    timestep = 0.1
+    dt = 0.1
     # perform the adiabatic evolution
-    final_state, info = evolve(vals, T, timestep)
+    final_state, info = evolve(vals, T, dt)
     # measure the spins of each qubit in the resulting state
     results = measure_all(final_state, len(vals) - 1)
 
@@ -41,7 +41,7 @@ def main():
 
     return J, h, vals, final_state, results, info
 
-def evolve(vals, T, timestep):
+def evolve(vals, T, dt):
     # strip off the first value as the constant field term
     field = vals[0]
     vals = vals[1:]
@@ -72,11 +72,11 @@ def evolve(vals, T, timestep):
     print("final hamiltonian:\n{}\n".format(Hfinal))
 
     # apply the hamiltonian for each time step
-    for t in np.arange(T, step=timestep):
+    for t in np.arange(T, step=dt):
         # calculate the hamiltonian based on the current time
         H = (1 - t/T) * Hinit + (t/T) * Hfinal
         # apply the propagator to the state
-        state = mx.propagate(H, t, state)
+        state = mx.propagate(H, dt, state)
 
         ## these lines do a bit of book-keeping for us
         # save calculated state in info
