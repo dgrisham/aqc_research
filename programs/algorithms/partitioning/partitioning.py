@@ -74,17 +74,17 @@ def evolve(vals, field, T, dt, strip_field=True):
     N = len(vals)
 
     # create the initial hamiltonian
-    Hinit = build_Hinit(N).real
+    Hinit = build_Hinit(N)
     #Hinit = Hinit / np.linalg.norm(Hinit)
     print("Hinit as returned:\n{}".format(Hinit))
     # create the final hamiltonian to evolve to
-    Hfinal = build_Hfinal(field, vals, N, strip_field).real
+    Hfinal = build_Hfinal(field, vals, N, strip_field)
     #Hfinal = Hfinal / np.linalg.norm(Hfinal)
 
     # make the initial state as the ground state of Hinit
-    #IC = 'st90-p180'
-    #state = st.make_state(N, IC)
-    state = get_ground_state(Hinit, N)[1]
+    IC = 'st90-p180'
+    state = st.make_state(N, IC)
+    #state = get_ground_state(Hinit, N)[1]
     print("initial state:\n{}".format(state))
 
     init_gs_energy, init_gs_vector, init_gs_measurement =\
