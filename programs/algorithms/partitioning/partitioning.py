@@ -148,8 +148,6 @@ def get_ground_state(H, N):
 
     return gs_energy, gs_vector, gs_measurement
 
-#def plot_state(energies):
-
 
 def plot_eigvals(info, T, dt, strip_field=True, save=False):
     # arrays to hold results
@@ -337,5 +335,6 @@ def expected_energy(vals):
 if __name__ == '__main__':
     # run 
     #Jt, ht, valst, final_statet, resultst, infot = main(strip_field=True)
-    Jf, hf, valsf, final_statef, resultsf, infof = main(strip_field=True)
+    #Jf, hf, valsf, final_statef, resultsf, infof = main(strip_field=True)
+    J, h, vals, final_state, results, info = main(strip_field=False)
 
