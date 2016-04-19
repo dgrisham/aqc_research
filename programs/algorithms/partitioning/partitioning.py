@@ -28,8 +28,8 @@ DEBUG_EVEN_MORE = 0
 ###################################################################################
 def main(strip_field=True):
     # set of values we would like to partition
-    #vals = [2, 4, 9, 15]
-    vals = [1,2,3]
+    vals = [2, 4, 9, 15]
+    #vals = [1,2,3]
 
     print("\n***************************************")
 
@@ -108,7 +108,8 @@ def evolve(vals, field, T, dt, strip_field=True):
     # apply the hamiltonian for each time step
     for t in np.arange(T, step=dt):
         # calculate the hamiltonian based on the current time
-        H = (1 - t/T) * Hinit + (t/T) * Hfinal
+        if ((T-t) < dt): H = Hfinal
+        else: H = (1 - t/T) * Hinit + (t/T) * Hfinal
         info['Htot'] += [H]
         # apply the propagator to the state
         state = mx.propagate(H, dt, state)
@@ -204,7 +205,9 @@ def build_Hinit(N):
     for i in range(N):
         Hinit += mx.make_big_mat([X], [i], N)
 
-    return 1 * Hinit
+    h0 = 4500 # works for [2,4,9,15]
+    #h0 = 5 # works for [1,2,3]
+    return h0 * Hinit
 
 #################################
 ## build the final hamiltonian ##
@@ -334,5 +337,5 @@ def expected_energy(vals):
 if __name__ == '__main__':
     # run 
     #Jt, ht, valst, final_statet, resultst, infot = main(strip_field=True)
-    Jf, hf, valsf, final_statef, resultsf, infof = main(strip_field=False)
+    Jf, hf, valsf, final_statef, resultsf, infof = main(strip_field=True)
 
