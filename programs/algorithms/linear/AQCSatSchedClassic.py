@@ -1,15 +1,17 @@
 #!/usr/bin/env python2
-# author: mberntso  last update: 3/7/15  
+# author: mberntso  last update: 3/28/16
 
-# this algorithm could be improbed by implementing a file format
+# current input is for sample data as supplied by Prof. Coffey  
+
+# this algorithm could be improved by implementing a file format
 # for data input
 
 from operator import sub
 
 # initialize all tasks as scheduled
 
-## numTasks = 10
-x = [1,1,1,1,1,1,1,1,1,1]
+## numTasks = 6
+x = [1,1,1,1,1,1]
 
 ## global indeces for first and last scheduled tasks
 firstIndex = 0
@@ -21,33 +23,37 @@ lastIndex = len(x)-1
 
 # duration
 
-d = [5,10,5,10,5,10,5,10,5,10]
+d = [5,5,5,5,5,5]
 
 ## slew time in accordance with index ordering
 s = [[0 for z in range(len(x))] for z in range(len(x))]
->>>>>>> bba2007d16d28da3bc857fe4b8cde3b259531aa8
 
 ### s[i][j] = time from i to j
-#s[0][1] = 1
-#s[0][2] = 1
-#s[0][3] = 1
-#s[0][4] = 1
-#s[1][2] = 1
-#s[1][3] = 1
-#s[1][4] = 1
-#s[2][3] = 1
-#s[2][4] = 1
-#s[3][4] = 1
-for i in range(len(s)-1):
-    for j in range(i+1, len(s)):
-        s[i][j] = 1
+s[0][1] = 3
+s[0][2] = 4
+s[0][3] = 1
+s[0][4] = 7
+s[0][5] = 10
+s[1][2] = 5
+s[1][3] = 4
+s[1][4] = 2
+s[1][5] = 5
+s[2][3] = 5
+s[2][4] = 4
+s[2][5] = 8
+s[3][5] = 4
+s[3][5] = 1
+s[4][5] = 3
+# for i in range(len(s)-1):
+#     for j in range(i+1, len(s)):
+#         s[i][j] = 1
 
 # window begin and end times
-wB = [0,5,0,15,40,15,30,80,100,150]
-wE = [30,25,20,45,60,70,70,130,120,200]
+wB = [103,105,300,100,200,300]
+wE = [110,111,600,1200,400,350]
 
 # priorities
-p = [1,2,3,4,5,6,7,8,9,10]
+p = [1,2,3,1,2,3]
 
 # very large value (not used currently)
 M = 999
@@ -60,7 +66,7 @@ def precedenceMatrix(x):
 
     # y[i][j] = 1 if i < j
 
-    # todo: for loops, when data from I/O
+    # todo: for loops, when data from user input
 
     for i in range(len(y)-1):
         for j in range(i+1, len(y)):
@@ -107,6 +113,7 @@ currentV = sum(p)
 #
 # Perhaps following an approach in line with the additive algorithm
 # would clean up the mess of conditionals in this function
+# Update (4/12/16): Additive Algorithm is just as complex and problem dependent
 #
 # See Figure 1 and 1a in the Geoffrion paper for a similar algorithm.
 # The Geoffrion paper also includes some explanation of a nonlinear
@@ -181,3 +188,9 @@ print('Start time min bound: ')
 print(startMin)
 print('Start time max bound: ')
 print(startMax)
+
+
+
+
+
+

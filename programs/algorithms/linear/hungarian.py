@@ -99,7 +99,8 @@ def maxWeightMatching(weights):
         augment()
     #                                    val. of matching is total edge weight
     val = sum(lu)+sum(lv)
-    return (Mu, Mv, val)
+    # return (Mu, Mv, val)
+    return (Mu, val)
 
 
 if __name__=='__main__':
@@ -111,7 +112,13 @@ if __name__=='__main__':
     #     u,v,w[u][v] = map(int, raw_input().split())
     # print maxWeightMatching(w)
     # print maxWeightMatching([[-31, -3, -2, -31, -31], [-31, -31, -2, -4, -31], [-31, -31, -31, -1, -5], [-31, -31, -31, -31, -6], [-31, -31, -31, -31, -31]])
-    print maxWeightMatching([[-1,-2,-3,-4],[-2,-4,-6,-8],[-3,-6,-9,-12],[-4,-8,-12,-16]])
+    print maxWeightMatching([
+        [-145,-122,-130,-95,-115],
+        [-80,-63,-85,-48,-78],
+        [-121,-107,-93,-69,-95],
+        [-118,-83,-116,-80,-105],
+        [-97,-75,-120,-80,-111]
+        ])
 
 
 
