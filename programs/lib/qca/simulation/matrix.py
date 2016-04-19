@@ -13,6 +13,7 @@ import numpy as np
 import scipy.sparse as sps
 import time
 import matplotlib.pyplot as plt
+from scipy.linalg import expm
 from os import environ
 
 # concatinate two dictionaries (second arg replaces first if keys in common)
@@ -216,6 +217,16 @@ def op_on_state2(meso_op, js, state):
     for inds in inds_gen2(js, L):
         new_state[inds] = meso_op.dot(state.take(inds))
     return new_state
+
+def make_big_mat(local_op_list, js, L):
+    I_list = [np.eye(2.0, dtype=complex)]*L
+    for j, local_op in zip(js, local_op_list): 
+        I_list[j] = local_op
+    big_op = listkron(I_list)
+    return big_op
+
+def propagate(H, dt, state):
+    return expm(-1j*H*dt).dot(state)
 
 
 # mememory intensive method (oldest version, V0)

@@ -147,8 +147,6 @@ def get_ground_state(H, N):
 
     return gs_energy, gs_vector, gs_measurement
 
-#def plot_state(energies):
-
 
 def plot_eigvals(info, T, dt, strip_field=True, save=False):
     # arrays to hold results
@@ -204,7 +202,8 @@ def build_Hinit(N):
     for i in range(N):
         Hinit += mx.make_big_mat([X], [i], N)
 
-    return 1 * Hinit
+    h0 = 5
+    return h0 * Hinit
 
 #################################
 ## build the final hamiltonian ##
@@ -334,5 +333,5 @@ def expected_energy(vals):
 if __name__ == '__main__':
     # run 
     #Jt, ht, valst, final_statet, resultst, infot = main(strip_field=True)
-    Jf, hf, valsf, final_statef, resultsf, infof = main(strip_field=False)
+    J, h, vals, final_state, results, info = main(strip_field=False)
 
