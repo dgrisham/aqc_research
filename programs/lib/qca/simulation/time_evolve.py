@@ -301,6 +301,9 @@ def run_sim(params, force_rewrite = False,
             data['sbond'] = np.zeros((T+1,L-1))
             data['snum'] = np.zeros((T+1,L-1))
 
+        if 'scenter' in sim_tasks:
+            data['scenter'] = np.zeros((T+1,1))
+
         # loop through quantum states
         for t, state in enumerate(time_evolve(params)):
             # store the entire initial state
@@ -335,17 +338,22 @@ def run_sim(params, force_rewrite = False,
                     data['sbond'][t,b] = sbond
                     data['snum'][t,b] = snum 
 
+            if 'scenter' in sim_tasks:
+                b = int(L/2)
+                rtc = mx.rdms(state, bi_partite_inds(L, b))
+                scenter = ms.vn_entropy(rtc, get_snum=False)
+                data['scenter'][t] = scenter
+
         if 'IPR' in sim_tasks:
             freqs, amps, rn = ms.make_ft(data['IPR'])
             data['FIPR'] = amps
             data['RNIPR'] = rn
-            data['freqs'] = freqs
+
     else:
         print('Importing states...')
-        sim_tasks.append('FIPR')
-        sim_tasks.append('freqs')
+        #sim_tasks.append('FIPR')
+        #sim_tasks.append('freqs')
         data = io.read_hdf5(fname, sim_tasks)
-
     return data
 
 

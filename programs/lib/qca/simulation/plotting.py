@@ -15,11 +15,13 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import h5py
 import matplotlib.transforms as trans
-from sklearn.mixture import GMM
 
 # default plot font
 # -----------------
-font = {'family':'serif','size':10}
+
+font = {'size':12, 'weight' : 'normal'}
+mpl.rcParams['mathtext.fontset'] = 'stix'
+mpl.rcParams['font.family'] = 'STIXGeneral'
 mpl.rc('font',**font)
 
 
@@ -358,7 +360,7 @@ def plot_measures(meas_dict, fignum=1):
 
 # plot Fourier transform of many measures
 # ---------------------------------------
-def plot_measure_fts(Fmeas_dict, freqs, fignum=1):
+def plot_measure_fts(Fmeas_dict, fignum=1):
     nr = len(list(Fmeas_dict.keys()))
     gs = gridspec.GridSpec(nr, 1)
     fig = plt.figure(fignum)
@@ -373,6 +375,7 @@ def plot_measure_fts(Fmeas_dict, freqs, fignum=1):
             xlabel = 'Frequency'
 
         amps = Fmeas_dict[name]['amps']
+        freqs = spf.rfftfreq(len(amps))
         RN = Fmeas_dict[name]['RN']
         plot_ft(freqs, amps, ax,
                 RN=RN,
@@ -488,7 +491,8 @@ def plot_grid_center_stats(grids_stats_dict, fignum=1,
 # ----------------------
 def plot(params, corrj=None):
     print('Plotting results...')
-    results = h5py.File(params['fname'], 'r')
+    results = h5py.File(params['fname'], 'r+')
+
     # get spin projections along x, y, and z
     x_grid, y_grid, z_grid = [ measures.get_diag_vecs(results[ab][::])
                 for ab in ('xx', 'yy', 'zz') ]
@@ -504,9 +508,8 @@ def plot(params, corrj=None):
     g2grids_stats = results['gstats']
 
     # get mi measure results and place in ordered dict for plotting
-    meas_keys = ['ND', 'CC', 'Y', 'IPR']
+    meas_keys = ['ND', 'CC', 'Y']
     meas_list = [results[meas_key][::] for meas_key in meas_keys]
-    freqs = results['freqs'][::]
     Fmeas_list = [ {'amps' : results['F'+meas_key][::],
                     'RN'   : results['RN'+meas_key][::]}
                     for meas_key in meas_keys ]
@@ -583,7 +586,7 @@ def plot(params, corrj=None):
     plot_measures(meas_dict, fignum=12)
 
     # plot measure Fourier transforms
-    plot_measure_fts(Fmeas_dict, freqs, fignum=13)
+    plot_measure_fts(Fmeas_dict, fignum=13)
 
     # plot distribution of mutual information over time
     #plot_edge_strength_contour(mtjk,
@@ -633,20 +636,24 @@ def fft_check():
 if __name__ == '__main__':
     import time_evolve
     params =  {
-                    'output_dir' : 'testing/state_saving',
+                    'output_dir' : 'L27',
 
-                    'L'    : 12,
+                    'L'    : 17,
                     'T'    : 100,
-                    'mode' : 'block',
-                    'R'    : 150,
-                    'V'    : ['H','T'],
-                    'IC'   : 'l0'
+                    'mode' : 'alt',
+                    'S'    : 6,
+                    'V'    : 'HP_0',
+                    'IC'   : 'f0-16',
+                    'BC'   : '1_00'
                                     }
 
     import numpy
     import matplotlib.pyplot as plt
     from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+
     #fft_check()
-
-
+    params['fname'] = io.base_name(params['output_dir'], 'data') +\
+                      io.sim_name(params)+'_v0.hdf5'
+    print(params['fname'])
+    plot(params, corrj=13)

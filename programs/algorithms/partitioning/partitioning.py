@@ -1,17 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: iso-8859-15 -*-
 
-# author: David Grisham
-# email: dgrisham@mines.edu
+#   author: David Grisham
+#   email: dgrisham@mines.edu
 #
-# requires: python3, custom qops libraries (included), numpy, scipy
+#   requires: python3, custom qca libraries (included in repo), numpy, scipy,
+#   matplotlib
 #
-# program to find a solution to the number partitioning problem using quantum
-# adiabatic optimization. the algorithm here draws from:
-#   - 'Ising Formulations of many NP problems' by Andrew Lucas,
-#   - 'Solving NP-Hard Problems on an Adiabtic Quantum Computer' by Dan Padilha
+#   program to find a solution to the number partitioning problem using quantum
+#   adiabatic optimization. the algorithm here draws from:
+#     - 'Ising Formulations of many NP problems' by Andrew Lucas,
+#     - 'Solving NP-Hard Problems on an Adiabtic Quantum Computer' by Dan Padilha
+#
+#   to run:
+#       `./partitioning.py "i1 i2 i3 ... in`
+#   where `i1, i2, ..., in` are the numbers to partition
+#   for example, to partition [1,4,9,15], we would run:
+#       `./partitioning.py "1 4 9 15"`
+#
 
 
+import sys
 import numpy as np
 import qca.simulation.matrix as mx
 import qca.simulation.states as st
@@ -20,15 +29,18 @@ from time import sleep
 import matplotlib.pyplot as plt
 
 DEBUG = 1
-DEBUG_MORE = 1
+DEBUG_MORE = 0
 DEBUG_EVEN_MORE = 0
+
 
 ###################################################################################
 ## main function; will run when this program is called from a shell/command line ## 
 ###################################################################################
-def main(strip_field=True):
+def main(argv, strip_field=True):
     # set of values we would like to partition
-    vals = [2, 4, 9, 15]
+    vals = [int(i) for i in argv[1].split()]
+    print("input vals: {}".format(vals))
+    return
     #vals = [1,2,3]
 
     print("\n***************************************")
@@ -36,7 +48,7 @@ def main(strip_field=True):
     print("\nthe values to be partitioned: {}\n".format(vals))
 
     if strip_field:
-        # strip_field off the first value as the constant field term
+        # strip off the first value as the constant field term
         field = vals[0]
         vals  = vals[1:]
 
@@ -108,8 +120,11 @@ def evolve(vals, field, T, dt, strip_field=True):
     # apply the hamiltonian for each time step
     for t in np.arange(T, step=dt):
         # calculate the hamiltonian based on the current time
-        if ((T-t) < dt): H = Hfinal
-        else: H = (1 - t/T) * Hinit + (t/T) * Hfinal
+        if ((T-t) < dt):
+            H = Hfinal
+        else:
+            H = (1 - t/T) * Hinit + (t/T) * Hfinal
+
         info['Htot'] += [H]
         # apply the propagator to the state
         state = mx.propagate(H, dt, state)
@@ -183,7 +198,7 @@ def plot_eigvals(info, T, dt, strip_field=True, save=False):
         plt.title("Energy vs. Time (only Jij terms, no h_i)")
 
     plt.plot(time_vals, evals0, color='blue')
-#    plt.plot(time_vals, evals1, color='purple')
+    #plt.plot(time_vals, evals1, color='purple')
     plt.plot(time_vals, state_energies, color='green')
     #plt.plot(time_vals, gap, color='red')
 
@@ -333,8 +348,6 @@ def expected_energy(vals):
 
 
 if __name__ == '__main__':
-    # run 
-    #Jt, ht, valst, final_statet, resultst, infot = main(strip_field=True)
-    #Jf, hf, valsf, final_statef, resultsf, infof = main(strip_field=True)
-    J, h, vals, final_state, results, info = main(strip_field=False)
+    # run with user input
+    J, h, vals, final_state, results, info = main(sys.argv, strip_field=False)
 

@@ -9,11 +9,17 @@ import h5py
 import numpy as np
 from itertools import product
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import simulation.fio as io
 import simulation.plotting as pt
+import matplotlib.ticker as ticker
+
+font = {'size':12, 'weight' : 'normal'}
+mpl.rcParams['mathtext.fontset'] = 'stix'
+mpl.rcParams['font.family'] = 'STIXGeneral'
+mpl.rc('font',**font)
 
 def main():
-
 
 
     # locate the data you're interested in
@@ -31,26 +37,28 @@ def main():
                 'T'          : [1000],
                 'BC'         : ['1_00'],
                 'mode'       : ['alt'],
-                'S'          : [1,2,3,4,5,6,7,8,9,10,11,12,13,14]
+                'S'          : [1,2,3,4,5,6,7,9,10,11,12,13,14]
                  }
 
     # params looped through at inner layer
     var_params_dict = {
-                'L'   : [20],
-                'V'   : ['HP_'+str(deg) for deg in [0, 45,90]],
-                'IC'  : ['c3_f0-2'],
+                'L'   : [19],
+                'V'   : ['HP_'+str(deg) for deg in [0, 45, 90]],
+                'IC'  : ['c3_f1'],
                  }
 
+    colors = ['c','m','limegreen']
     # histogram parameters
-    partition_size = 10
-    n_partitions = 99
+    partition_size = 19
+    n_partitions = 49
     include_remaining = True
-    n_bins = 20
+    n_bins = 40
 
     barmode = False
     aggregate_mode = True
 
-    measure_name = "$ND$"
+    measure_name = "$\Delta s^{\mathrm{bond}}$"
+    #measure_name = "$\Delta ND$"
 
     colormap = plt.cm.get_cmap('jet')
 
@@ -63,11 +71,11 @@ def main():
         #return data_set['Y'][i:j] # Y
         #return delta(data_set['Y']) # \Delta Y
 
-        return data_set['ND'][i:j] # ND
+        #return data_set['ND'][i:j] # ND
         #return delta(data_set['ND']) # \Delta ND
 
         #return data_set['CC'][i:j] # ND
-        #return delta(data_set['CC']) # \Delta ND
+        #return delta(data_set['CC']) # \Delta CC
 
         #return data_set['m'][i:j] # Mutual information
         #return delta(data_set['m']) # Mutual information change
@@ -80,6 +88,11 @@ def main():
         #        get_diag_vecs(data_set['zz'][i+1:j]))  # \Delta Z
 
 
+        L = len(data_set['sbond'][1])
+        sb = data_set['sbond'][::] 
+        sb /= [min(c+1, L-c) for c in range(L)]
+        return delta(sb)
+
     #aggregate data
 
     params_list_list = io.make_params_list_list(fixed_params_dict, var_params_dict)
@@ -90,8 +103,8 @@ def main():
         all_stds = []
         names = []
         labels = []
-        print(fignum)
-        fig = plt.figure(fignum,figsize=(4,3))
+        #print(fignum)
+        fig = plt.figure(fignum,figsize=(3,3))
         ax = fig.add_subplot(1,1,1)
         for n, params in enumerate(params_list):
             if data_repo is not None:
@@ -104,12 +117,14 @@ def main():
             data_set = h5py.File(data_path)
             names.append(sname)
 
-            simulation_hists = []
 
+            #full_hist(ax, params, data_set)
+
+
+            simulation_hists = []
             #aggregate
             means = []
             stds = []
-
             #bin range
             maximum = 0
             minimum = 0
@@ -168,6 +183,7 @@ def main():
                 #make histogram
                 hist, _ = np.histogram(values,bins=bins)
                 hist = hist/(j-i) #normalize
+                #hist = hist/sum(hist) #normalize
 
                 # help decide y axis maximum
                 if (np.max(hist) > maxbin): maxbin = np.max(hist)
@@ -177,9 +193,11 @@ def main():
 
                 if barmode:
                     #plot as bar graph
-                    width = (0.5 + 0.5*fraction) * (bins[1] - bins[0])
+                    width = (0.75 + 0.75*fraction) * (bins[1] - bins[0])
                     center = (bins[:-1] + bins[1:]) / 2
                     plt.bar(center, hist, align='center', width=width, color=color, alpha=0.5, label="%d to %d" % (i,j))
+                    plt.gca().set_yscale("log")
+                    plt.gca().set_ylim([min(hist), max(hist)])
                 else:
                     #plot as filled region
                     centers = (bins[:-1] + bins[1:]) / 2
@@ -205,28 +223,77 @@ def main():
             else:
                 agg_range = np.arange(n_partitions)
 
-            for i in range(len(all_means)):
-
+            mins, maxs = [], []
+            for i, c in zip(range(len(all_means)), ['c','m','limegreen']):
                 fraction = i/len(all_means)
                 means = all_means[i]
                 stds = all_stds[i]
                 label = labels[i]
-                ax.plot(agg_range,means, color=colormap(fraction), label=label)
-                ax.fill_between(agg_range, means+stds, means-stds, alpha=0.5,
-                        color=colormap(fraction))
+                # color=colormap(fraction)
+                ax.plot(agg_range, means, color=c, markeredgecolor=c,
+                        label=label, lw=0.8, markeredgewidth=1.2,
+                marker='o', markerfacecolor='None')
+                #ax.fill_between(agg_range, means+stds, means-stds, alpha=0.5,color=c)
+                #ax.errorbar(agg_range, means, stds)
                 #plt.plot(agg_range, [1.0/20]*len(means))
-
-            ax.set_title(r'$S='+str(params['S'])+'$,'+r'  $\tau=' +
-                    str(partition_size) + '$')
+                mins.append(min(means))
+                maxs.append(max(means))
+            ax.set_title(r'$S='+str(params['S'])+'$')
             ax.set_ylabel(measure_name)
-            ax.set_xlabel("Partition index")
+            ax.set_xlabel(r"Iteration [$t/\tau$]")
             ax.grid(True)
-            ax.legend(loc='best')
+            ax.legend(loc='best', fontsize=11,  numpoints=1, handlelength=1)
             ax.set_xscale("log", nonposx='clip')
             ax.set_yscale("log", nonposy='clip')
+            ax.set_ylim([min(mins), max(maxs)])
+            ax.margins(0.001)
+
+
+            letters = ['(a)', '(b)', '(c)', '(d)']
+            labeled_rules = [6, 7, 9, 14]
+            letter_dict = dict(zip(labeled_rules, letters))
+            S = params['S']
+            if S in labeled_rules:
+                panel_label = letter_dict[S]
+                ax.text(0.5, -0.28, panel_label,
+                verticalalignment='bottom', horizontalalignment='center',
+                transform=ax.transAxes)
+            ax.set_ylim([1e-5, 1e-1])
         fignum += 1
-    io.multipage('./../output/fock_IC/plots/L20_ND_avgs.pdf')
+    io.multipage('./../output/fock_IC/plots/L19_delta_sbond_means.pdf')
         #plt.show()
+
+def full_hist(ax, params, data_set):
+    T = params['T']
+    L = len(data_set['sbond'][1])
+    S = params['S']
+
+    sb = data_set['sbond'][::] 
+    sb /= [min(c+1, L-c) for c in range(L)]
+
+    delta_sb = sb[1:T+1, ::] - sb[0:T, ::]
+    delta_sb = delta_sb.flatten()
+
+    ax.hist(delta_sb, bins=30, color='k', alpha=0.85)
+    ax.set_yscale('log', nonposy='clip')
+    ax.set_ylabel('Counts')
+    ax.set_xlabel(r'$\Delta s^{\mathrm{bond}}$')
+    ax.set_title(r'$S = {}$'.format(S))
+    start, end = ax.get_xlim()
+    ax.xaxis.set_ticks(np.arange(start, end, (end - start)/5))
+    ax.xaxis.set_major_formatter(ticker.FormatStrFormatter('%0.1f'))
+    ax.set_ylim(bottom=0.1)
+    letters = ['(a)', '(b)', '(c)', '(d)']
+    labeled_rules = [6, 7, 9, 14]
+    letter_dict = dict(zip(labeled_rules, letters))
+    S = params['S']
+    if S in labeled_rules:
+        panel_label = letter_dict[S]
+        ax.text(0.5, -0.28, panel_label,
+        verticalalignment='bottom', horizontalalignment='center',
+        transform=ax.transAxes)
+
+#
 
 # set default behavior of the file
 if __name__ == '__main__':
