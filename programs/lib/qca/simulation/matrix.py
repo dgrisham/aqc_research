@@ -223,7 +223,7 @@ def op_on_state2(meso_op, js, state):
         new_state[inds] = meso_op.dot(state.take(inds))
     return new_state
 
-# mememory intensive method (oldest version, V0)
+# memory intensive method (oldest version, V0)
 # ----------------------------------------------
 ## make big matrix operator
 def make_big_mat(local_op_list, js, L):

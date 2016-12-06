@@ -22,11 +22,11 @@
 
 import sys
 import numpy as np
+import matplotlib.pyplot as plt
 import qca.simulation.matrix as mx
 import qca.simulation.states as st
 from random import random
 from time import sleep
-import matplotlib.pyplot as plt
 
 DEBUG = 1
 DEBUG_MORE = 0
@@ -37,11 +37,15 @@ DEBUG_EVEN_MORE = 0
 ## main function; will run when this program is called from a shell/command line ## 
 ###################################################################################
 def main(argv, strip_field=True):
+
+    # check for user input
+    if len(argv) != 2 or argv[1] in ('-h', '--help'):
+        print("usage: ./partitioning.py 'i1 i2 ... in'")
+        exit()
+
     # set of values we would like to partition
     vals = [int(i) for i in argv[1].split()]
     print("input vals: {}".format(vals))
-    return
-    #vals = [1,2,3]
 
     print("\n***************************************")
 
@@ -60,19 +64,20 @@ def main(argv, strip_field=True):
         print("\nno field term stripped for this run (all h_i = 0)")
 
     # total time to evolve over
-    T = 10
+    T = 1
     # time step
-    dt = 0.01
+    dt = 0.001
     # perform the adiabatic evolution
     final_state, info = evolve(vals, field, T, dt, strip_field)
     # measure the spins of each qubit in the resulting state
-    results = measure_all(final_state, len(vals))
-    #results = measure_all((1/np.sqrt(2))*np.array([1,1]), 1)
+    final_measurement = measure_all(final_state, len(vals))
+    #final_measurement = measure_all((1/np.sqrt(2))*np.array([1,1]), 1)
 
-    print("\nmeasured spins after adiabatic evolution: {}".format(results))
+    print("\nmeasured spins after adiabatic evolution: {}".
+            format(final_measurement))
     print("\n***************************************")
 
-    return J, h, vals, final_state, results, info
+    return J, h, vals, final_state, final_measurement, info
 
 ###############################################################
 ## built the Hamiltonian and adiabatically evolve the system ## 
@@ -99,8 +104,10 @@ def evolve(vals, field, T, dt, strip_field=True):
     #state = get_ground_state(Hinit, N)[1]
     print("initial state:\n{}".format(state))
 
+    # get Hinit's energy, ground state vector, and measurement
     init_gs_energy, init_gs_vector, init_gs_measurement =\
         get_ground_state(Hinit, N)
+
     # create a dictionary to hold some information for us
     info = {
         'states' : [state],
@@ -213,7 +220,7 @@ def plot_eigvals(info, T, dt, strip_field=True, save=False):
 def build_Hinit(N):
     # define the ops X matrix as 'X' for convenience
     X = st.ops['X']
-    # form Hinit (see Lucas paper for more info)
+    # create Hinit (see Lucas paper for more info)
     Hinit = np.zeros((2**N, 2**N), dtype=complex)
     for i in range(N):
         Hinit += mx.make_big_mat([X], [i], N)
@@ -230,14 +237,18 @@ def build_Hfinal(field, vals, N, strip_field=True):
 
     if strip_field:
         H_field = build_H_field(field, vals, N)
+
         if DEBUG_MORE:
             print("Hfield: {}".format(H_field))
             print("Hinteraction: {}".format(H_interaction))
+
         return -1 * (H_interaction + H_field)
     else:
-        # if no field term, don't add H_field to final Hamiltonian
+        # no field term, don't add H_field to final Hamiltonian
+
         if DEBUG_MORE:
             print("Hinteraction: {}".format(H_interaction))
+
         return -1 * H_interaction
 
 ###################################################
@@ -274,11 +285,10 @@ def build_H_interaction(vals, N):
         for i in range(j):
             # get the J value for the current i,j pair
             Jij = J(vals, i, j)
-            #Zij = [Jij*Z, Jij*Z]
             Zi = Zj = Jij*Z
             # add in corresponding term to Hfinal_J
             if DEBUG_EVEN_MORE:
-                print("\nadding to Hfinal_J w/ Jij ="\
+                print("\nadding to Hfinal_J w/ Jij ="
                         "{}:\n{}\n".format(Jij, Zi))
             Hfinal_J += mx.make_big_mat([Zi, Zj], [i, j], N)
 
@@ -328,9 +338,9 @@ def print_h(field, vals):
 
     print("\nh-vector\n{}".format(hvec))
 
-###################################################################
-## measure the spin along the z-axis for all qubits in the state ##
-###################################################################
+####################################################################
+## measure the spin along the z-axis for all qubits in the system ##
+####################################################################
 def measure_all(state, N, op=st.ops['Z']):
     # reduced density matrix for each site calculated from the state
     rho_list = [mx.rdms(state, [j]) for j in range(N)]
@@ -349,5 +359,5 @@ def expected_energy(vals):
 
 if __name__ == '__main__':
     # run with user input
-    J, h, vals, final_state, results, info = main(sys.argv, strip_field=False)
+    J, h, vals, final_state, final_measurement, info = main(sys.argv, strip_field=False)
 
