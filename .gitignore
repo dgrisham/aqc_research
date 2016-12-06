@@ -1,4 +1,6 @@
 # vim swap files
 *.sw?
+# pyc files
+*.pyc
 # julia example code
 julia
